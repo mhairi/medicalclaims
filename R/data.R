@@ -1,6 +1,6 @@
 #' A sample of 100,000 medical insurance claims from New Hamshire.
 #' Data comes from New Hampshire’s Comprehensive Health Information System (https://nhchis.com/).
-#' Data is annonomised by New Hampshire.
+#' Data is anonymised by New Hampshire.
 #' For a more detailed data dictionary see: https://nhchis.com/DocumentDelivery/GetFile/15
 #'
 #'

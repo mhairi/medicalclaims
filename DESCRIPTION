@@ -5,7 +5,7 @@ Version: 0.1.0
 Authors@R: c(
     person("Mhairi", "McNeill", , "mhairihmcneill@gmail.com", c("aut", "cre"))
     )
-Description: Anonomised medical claim data from New Hampshire’s Comprehensive 
+Description: Anonymised medical claim data from New Hampshire’s Comprehensive 
     Health Information System (https://nhchis.com/). A random sample of 100,000
     claims.
 License: CC0

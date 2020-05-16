@@ -1,0 +1,43 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+# medicalclaims
+
+A data package with a sample of 100,000 anonymised medical claims New Hampshire’s Comprehensive Health Information System (https://nhchis.com/). 
+
+## Installation
+
+You can install though GitHub with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("mhairi/medicalclaims")
+```
+## Example
+
+Once you've loaded the package, the data is in an object called `claims`.
+
+```{r}
+library(medicalclaims)
+head(claims)
+```
+
+The data frame has 100,000 rows and 57 variables. The variables available are seen below.
+
+```{r}
+for (var in names(claims)){
+  print(var)
+}
+```
+

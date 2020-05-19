@@ -35,7 +35,7 @@ head(claims)
 
 Here is how you find the procedures with the highest average cost, only counting procedures that have appeared at least 10 times in the data.
 
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
 
 claims %>% 

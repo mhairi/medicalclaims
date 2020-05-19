@@ -122,7 +122,6 @@ counting procedures that have appeared at least 10 times in the data.
 
 ``` r
 library(tidyverse)
-#> Warning: package 'tibble' was built under R version 3.6.2
 
 claims %>% 
   group_by(cpt_desc) %>%

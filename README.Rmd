@@ -26,18 +26,50 @@ devtools::install_github("mhairi/medicalclaims")
 ```
 ## Example
 
-Once you've loaded the package, the data is in an object called `claims`.
+Once you've loaded the package, the data is in an object called `claims`. The data frame has 100,000 rows and 57 variables. 
 
 ```{r}
 library(medicalclaims)
 head(claims)
 ```
 
-The data frame has 100,000 rows and 57 variables. The variables available are seen below.
+Here is how you find the procedures with the highest average cost, only counting procedures that have appeared at least 10 times in the data.
+
+```{r, message=FALSE}
+library(tidyverse)
+
+claims %>% 
+  group_by(cpt_desc) %>%
+  summarise(
+    avg_cost = mean(total_by_n),
+    n = n()
+  ) %>% 
+  filter(n > 10) %>% 
+  arrange(desc(avg_cost)) %>% 
+  top_n(10, avg_cost)
+```
+
+If you want to look at how expensive different diagnoses are, then you first need to summarise over `imputed_service_key` and `icd_diag_01_primary`. This gives us the total spending for each patient and each diagnosis.
 
 ```{r}
-for (var in names(claims)){
-  print(var)
-}
+by_individual <- 
+claims %>% 
+  group_by(new_diag_desc, imputed_service_key) %>% 
+  summarise(spending = sum(total))  %>% 
+  ungroup 
+```
+
+Then we can summarise to find the most expensive diagnoses.
+
+```{r}
+by_individual %>% 
+  group_by(new_diag_desc) %>%
+  summarise(
+    avg_cost = mean(spending),
+    n = n()
+  ) %>% 
+  filter(n > 10) %>% 
+  arrange(desc(avg_cost)) %>% 
+  top_n(10, avg_cost)
 ```
 

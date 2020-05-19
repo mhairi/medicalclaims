@@ -19,7 +19,7 @@ devtools::install_github("mhairi/medicalclaims")
 ## Example
 
 Once you’ve loaded the package, the data is in an object called
-`claims`.
+`claims`. The data frame has 100,000 rows and 57 variables.
 
 ``` r
 library(medicalclaims)
@@ -117,68 +117,73 @@ head(claims)
 #> 6      87.54
 ```
 
-The data frame has 100,000 rows and 57 variables. The variables
-available are seen below.
+Here is how you find the procedures with the highest average cost, only
+counting procedures that have appeared at least 10 times in the data.
 
 ``` r
-for (var in names(claims)){
-  print(var)
-}
-#> [1] "coverage_class"
-#> [1] "form_year"
-#> [1] "claim_id_key"
-#> [1] "cs_claim_id_key"
-#> [1] "services_key"
-#> [1] "sv_line"
-#> [1] "form_type"
-#> [1] "sv_stat"
-#> [1] "dis_stat"
-#> [1] "pos"
-#> [1] "age"
-#> [1] "sex"
-#> [1] "member_county"
-#> [1] "member_state"
-#> [1] "product_type"
-#> [1] "lob"
-#> [1] "insurance_type"
-#> [1] "proc_code"
-#> [1] "cdt_mod1"
-#> [1] "cdt_mod2"
-#> [1] "rev_code"
-#> [1] "ub_bill_type"
-#> [1] "adm_src"
-#> [1] "adm_type"
-#> [1] "client_los"
-#> [1] "icd_10_or_higher"
-#> [1] "icd_proc_01_pri"
-#> [1] "icd_diag_01_primary"
-#> [1] "icd_diag_admit"
-#> [1] "icd_diag_02"
-#> [1] "serv_prov_cw_key"
-#> [1] "bill_prov_cw_key"
-#> [1] "qty"
-#> [1] "amt_billed"
-#> [1] "amt_paid"
-#> [1] "amt_deduct"
-#> [1] "amt_coins"
-#> [1] "amt_copay"
-#> [1] "amt_prepaid"
-#> [1] "inpatient_flag"
-#> [1] "mr_line_case_key"
-#> [1] "cases"
-#> [1] "utils"
-#> [1] "ndc"
-#> [1] "claim_status_orig"
-#> [1] "ecode_orig"
-#> [1] "claim_adjustment_logic"
-#> [1] "imputed_service_key"
-#> [1] "cash"
-#> [1] "total"
-#> [1] "cpt_desc"
-#> [1] "mr_line_new_desc"
-#> [1] "mr_line_setting"
-#> [1] "mr_line_abbrdesc"
-#> [1] "mr_line_hcg"
-#> [1] "new_diag_desc"
-#> [1] "total_by_n"
+library(tidyverse)
+#> Warning: package 'tibble' was built under R version 3.6.2
+
+claims %>% 
+  group_by(cpt_desc) %>%
+  summarise(
+    avg_cost = mean(total_by_n),
+    n = n()
+  ) %>% 
+  filter(n > 10) %>% 
+  arrange(desc(avg_cost)) %>% 
+  top_n(10, avg_cost)
+#> # A tibble: 10 x 3
+#>    cpt_desc                                                  avg_cost     n
+#>    <chr>                                                        <dbl> <int>
+#>  1 OBGYN pre and postpartum care and vaginal delivery           3784.    20
+#>  2 Sleep monitoring of patient (6 years or older) in sleep …    2484.    20
+#>  3 Nuclear medicine study of vessels of heart                   2199.    14
+#>  4 Biopsy of breast accessed through the skin with stereota…    2037.    11
+#>  5 MRI scan of abdomen before and after contrast                1803.    11
+#>  6 Radiation therapy delivery                                   1580.    43
+#>  7 Diagnostic exam of large bowel using an endoscope            1562.    45
+#>  8 MRI scan of brain before and after contrast                  1561.    63
+#>  9 Removal of one knee cartilage using an endoscope             1537.    19
+#> 10 CT scan of abdomen and pelvis with contrast                  1411.   129
+```
+
+If you want to look at how expensive different diagnoses are, then you
+first need to summarise over `imputed_service_key` and
+`icd_diag_01_primary`. This gives us the total spending for each patient
+and each diagnosis.
+
+``` r
+by_individual <- 
+claims %>% 
+  group_by(new_diag_desc, imputed_service_key) %>% 
+  summarise(spending = sum(total))  %>% 
+  ungroup 
+```
+
+Then we can summarise to find the most expensive diagnoses.
+
+``` r
+by_individual %>% 
+  group_by(new_diag_desc) %>%
+  summarise(
+    avg_cost = mean(spending),
+    n = n()
+  ) %>% 
+  filter(n > 10) %>% 
+  arrange(desc(avg_cost)) %>% 
+  top_n(10, avg_cost)
+#> # A tibble: 10 x 3
+#>    new_diag_desc                                             avg_cost     n
+#>    <chr>                                                        <dbl> <int>
+#>  1 Antineoplastic Chemotherapy Session                          4041.    36
+#>  2 Chronic inflammatory demyelinating polyneuritis              3848.    14
+#>  3 Malignant neoplasm of ovrlp sites of left female breast      3017.    16
+#>  4 Hydronephrosis with renal and ureteral calculous obstruc…    2811.    12
+#>  5 Crohn's disease, without complications                       2536.    29
+#>  6 Malignant neoplasm of unspecified site of left female br…    2439.    35
+#>  7 Malignant neoplasm of brain                                  2158.    11
+#>  8 Ulcerative colitis, without complications                    1919.    25
+#>  9 Encounter for full-term uncomplicated delivery               1905.    40
+#> 10 Encounter for antineoplastic radiation therapy               1707.    89
 ```
